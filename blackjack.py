@@ -10,6 +10,8 @@ ranks = ('Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
 # Values of Prefixes
 values = {'Two':2, 'Three':3, 'Four':4, 'Five':5, 'Six':6, 'Seven':7, 'Eight':8, 
             'Nine':9, 'Ten':10, 'Jack':10, 'Queen':10, 'King':10, 'Ace':1}
+# unicdoe for Symbols
+symbol_code = {"Hearts":"\u2665","Diamonds":"\u2666","Spades":"\u2660","Clubs":"\u2663"}  
 
 class Card:     # Card class to show the name of the card
     def __init__(self,suit,rank):       # attributes ( shape , Prefixes)
@@ -50,11 +52,33 @@ class Player:                   # Player class to store player's cards
         # We state 0 to remove from the "top" of the deck
         # We'll imagine index -1 as the bottom of the deck
         return self.own_cards.pop(0)
-    
-    def cards(self):            # cards method to display player's cards     
-        print(f"\t\t\t{self.name} have - ")
-        for i in range(len(self.own_cards)):            # loop through as the amount of player's cards 
-            print(f"\t\t\t\t    {self.own_cards[i]}")   # display each card through the looping 
+
+    def draw_card(self,num:int,sbl:str) -> str:         # method to draw cards ( value , suit )
+        if sbl  in symbol_code:                         # for valid value in dictionary
+            symb = symbol_code[sbl]                     # get the unicdoe 
+        else:                                           # for invalid
+            symb = sbl[0]                               #  get the first letter
+        print("\t\t==============")
+        if num >= 10 :                                  
+            print(f"\t\t==  {num}      ==")
+        else:
+            print(f"\t\t==  {num}       ==")
+        print("\t\t==          ==")
+        print(f"\t\t==     {symb}    ==")
+        print("\t\t==          ==")
+        if num >= 10:
+            print(f"\t\t==       {num} ==")
+        else:
+            print(f"\t\t==       {num}  ==")
+        print("\t\t==============")
+
+    def cards(self):            # cards method to display player's cards
+        print( "\t\t =======================")     
+        print(f"\t\t ***\t{self.name} have   ***")
+        print( "\t\t =======================")  
+        for i in range(len(self.own_cards)):            # loop through as the amount of player's cards
+            self.draw_card(self.own_cards[i].value,self.own_cards[i].suit)  # draw card for each card
+
 
     def cards_val(self):        # cards_val method to calculate the points of computer 
         value = 0
@@ -103,6 +127,8 @@ def check_winner(val1,val2,name1,name2,amt):
         print(f"\n\t\t\t\t{name1} beat {name2} with {val1} > {val2}")
         print(f"\t\t\t\tYou win doubled  your betting {amt}$ ,Recieve {amt*2}$ ...")
         return False
+    elif val1 == val2:
+        return 1
     else:               # if no one wins or lose 
         return True
 
@@ -168,7 +194,10 @@ def main():
             player.cards()                  # show the player's cards
             result1 = player.cards_val()    # get the value of player
             result2 = comp.cards_cmp()      # get the value of computer
-            print(f"\n\t\t\t\tComputer has {comp.own_cards[count]}")    # show one card of computer
+            print( "\t\t =======================")     
+            print(f"\t\t ***  Computer has   ***")
+            print( "\t\t =======================") 
+            comp.draw_card(comp.own_cards[count].value,comp.own_cards[count].suit)      # draw card for computer
             print( "  \t\t\t\t********************************")
             
             if result1 < 16:                            # if player's cards are under 16
@@ -182,7 +211,7 @@ def main():
             if result1 <= 21 :              # if the player's points is less than 21
                 if result2 < result1:       # and player's point is greater than computer's points
                     comp.add_cards(new_deck.deal_one()) # remove one card for computer
-                    result2 = comp.cards_cmp()
+                    result2 = comp.cards_cmp()          # get the new total results
             
             
             game_on=check_busts(result1,result2,player.name,comp.name,amt)  # check bust function
@@ -190,11 +219,17 @@ def main():
                 show_all(player,comp)   # show all cards of particiapants
                 break 
             if chk == 2:                # if player stands
-                    game_on=check_winner(result1,result2,player.name,comp.name,amt)    # check winner           
-                    if game_on == False:         # if someone wins
-                        show_all(player,comp)   # show all cards of particiapnats
-                        break                   # break the loop
-    count += 1
+                game_on=check_winner(result1,result2,player.name,comp.name,amt)    # check winner        
+                if game_on == False:         # if someone wins
+                    show_all(player,comp)   # show all cards of particiapnats
+                    break                   # break the loop
+                elif game_on == 1:          # if both players stand and equal values
+                    print("\t\t\t******************")
+                    print("\t\t\t*** Draw Match ***")
+                    print("\t\t\t******************")
+                    show_all(player,comp)   # show all cards of participants
+                    break                   # vreak the loop
+    count += 1              # increase count to show the card index
 
         
 
