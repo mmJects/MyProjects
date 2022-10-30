@@ -40,7 +40,6 @@ class Deck:     # Deck class to store all the 51 cards
         # Note we remove one card from the list of all_cards
         return self.all_cards.pop()    
 
-
 class Player:                   # Player class to store player's cards
     def __init__(self,name):    # initialize the class with the name attribute
         self.name = name        # assign name attribute
@@ -53,32 +52,26 @@ class Player:                   # Player class to store player's cards
         # We'll imagine index -1 as the bottom of the deck
         return self.own_cards.pop(0)
 
-    def draw_card(self,num:int,sbl:str) -> str:         # method to draw cards ( value , suit )
-        if sbl  in symbol_code:                         # for valid value in dictionary
-            symb = symbol_code[sbl]                     # get the unicdoe 
-        else:                                           # for invalid
-            symb = sbl[0]                               #  get the first letter
-        print("\t\t==============")
-        if num >= 10 :                                  
-            print(f"\t\t==  {num}      ==")
-        else:
-            print(f"\t\t==  {num}       ==")
-        print("\t\t==          ==")
-        print(f"\t\t==     {symb}    ==")
-        print("\t\t==          ==")
-        if num >= 10:
-            print(f"\t\t==       {num} ==")
-        else:
-            print(f"\t\t==       {num}  ==")
-        print("\t\t==============")
-
-    def cards(self):            # cards method to display player's cards
-        print( "\t\t =======================")     
-        print(f"\t\t ***\t{self.name} have   ***")
-        print( "\t\t =======================")  
-        for i in range(len(self.own_cards)):            # loop through as the amount of player's cards
-            self.draw_card(self.own_cards[i].value,self.own_cards[i].suit)  # draw card for each card
-
+    def display(self,computer=False):       # a method to display the cards (boolean: for computer or not)
+        print( "\t\t\t =================================")     
+        print(f"\t\t\t ***\t{self.name.ljust(15)} have   ***")
+        print( "\t\t\t =================================") 
+        rows = ["","","","",""]             #  a list containing four lines 
+        # for computer show 1 card , if not show all cards
+        cards = self.own_cards[::] if computer == False else self.own_cards[-1:]   
+        for i in cards:                 # loop through the own_cards
+            val = str(i.value)          # typecase the value inot string to get string features
+            if i.suit in symbol_code:       # if valid symbol
+                symb = symbol_code[i.suit] 
+            else:                           # if not valid symbol
+                symb = i.suit[0]            # use the first letter 
+            rows [0] += "\t|=======|"       
+            rows[1] += f"\t|{val.ljust(2)}     |"
+            rows[2] += f"\t|   {symb}   |"
+            rows[3] += f"\t|     {val.rjust(2)}|"
+            rows [4] += "\t|=======|"
+        for row in rows:                    # loop throught the lines
+            print(row)                      # and print
 
     def cards_val(self):        # cards_val method to calculate the points of computer 
         value = 0
@@ -94,10 +87,7 @@ class Player:                   # Player class to store player's cards
     
     def add_cards(self,new_card):               # add_cards method to add
         self.own_cards.append(new_card)         # append the card to the list
-    
-    
-    def __str__(self):
-        return f' {self.name} has {len(self.own_cards)} cards => {list(self.own_cards)}'
+
 
 # check bust function
 # ( value of plyaer cards , value of computer cards , name of player , computer , betting amount )
@@ -111,7 +101,7 @@ def check_busts(val1,val2,name1,name2,amt):
         print(f"\t\t\t\tYou win doubled  your betting {amt}$ ,Recieve {amt*2}$ ...")
         return False
     elif val1 > 21 and val2 > 21:   # if both player's points exceed 
-        print(f"\n\t\t\t\tDraw match......Both of you bust the game ...")
+        print(f"\n\t\t\t\tDraw match.... Both of you buested the game ....")
         return False
     else:                           # if no one busts
         return True
@@ -128,7 +118,8 @@ def check_winner(val1,val2,name1,name2,amt):
         print(f"\t\t\t\tYou win doubled  your betting {amt}$ ,Recieve {amt*2}$ ...")
         return False
     elif val1 == val2:
-        return 1
+        print("Draw Match....Both of you stood at equality...")
+        return False
     else:               # if no one wins or lose 
         return True
 
@@ -142,6 +133,7 @@ def hit_or_stand(player,new_deck):      # ( player class , deck class )
     if chk == 1:                        # if the player hits
         print(f"\n\t\t\t\t{player.name} deal one card from the deck...")
         player.add_cards(new_deck.deal_one())   # remove one card from the deck
+        player.display()                # show all cards of player
     elif chk == 2 :                     # if the player stand
         print(f"\n\t\t\t\t{player.name} stands.....")
         return chk
@@ -154,21 +146,12 @@ def bet_amt():
         try:                                        # try 
             amt = int(amt)                          # to typecast to integers 
         except:                                     # if there is an error
-            print("\t\t Please enter only digits ")   # show error message
+            print("\t\t Please enter only digits ")     # show error message
             continue                                    # start the loop
         if amt < 1:                                 # if the input is less than 1:
             print("\t\t You can only bet above 1$..")
             continue                                # start the loop
         return amt                                  # return the amount if there is no error
-
-# show all the cards of participants
-def show_all(player,comp):      # ( player class , computer class )
-    print("\t\t\tYou have - ")
-    for i in range(len(player.own_cards)):
-        print(f"\t\t\t\t    {player.own_cards[i]}")
-    print("\t\t\tComputer Dealer have - ")
-    for i in range(len(comp.own_cards)):
-        print(f"\t\t\t\t\t    {comp.own_cards[i]}")
 
 # driver function
 def main():
@@ -183,60 +166,42 @@ def main():
     print("\t\t\t\t ******* You have to face with Our AI 1.0 ! ******* ")
     amt = bet_amt()
     input("\n\t\t\tPress enter to start the game.....") 
-    game_on = True                      # game on True
-    player.add_cards(new_deck.deal_one())   # remove one card for player
-    comp.add_cards(new_deck.deal_one())     # remove one card for computer
-    player.add_cards(new_deck.deal_one())   # remove one card for player
-    comp.add_cards(new_deck.deal_one())     # remove one card for computer
-    count = 0       
-    chk = 0
-    while game_on:   
-            player.cards()                  # show the player's cards
-            result1 = player.cards_val()    # get the value of player
-            result2 = comp.cards_cmp()      # get the value of computer
-            print( "\t\t =======================")     
-            print(f"\t\t ***  Computer has   ***")
-            print( "\t\t =======================") 
-            comp.draw_card(comp.own_cards[count].value,comp.own_cards[count].suit)      # draw card for computer
-            print( "  \t\t\t\t********************************")
-            
-            if result1 < 16:                            # if player's cards are under 16
-                input("\n\t\t\t\t You are cards are under 16 so press enter to deal a card: ")
-                player.add_cards(new_deck.deal_one())   # remove one card from deck
-                player.cards()                          # show the player's cards
-            else:                                       # if the player's cards are above or equal 16
-                chk = hit_or_stand(player,new_deck)     # ask player to stand or hit
-                
-
-            if result1 <= 21 :              # if the player's points is less than 21
-                if result2 < result1:       # and player's point is greater than computer's points
-                    comp.add_cards(new_deck.deal_one()) # remove one card for computer
-                    result2 = comp.cards_cmp()          # get the new total results
-            
-            
-            game_on=check_busts(result1,result2,player.name,comp.name,amt)  # check bust function
-            if game_on == False:        # if someone loses
-                show_all(player,comp)   # show all cards of particiapants
-                break 
-            if chk == 2:                # if player stands
-                game_on=check_winner(result1,result2,player.name,comp.name,amt)    # check winner        
-                if game_on == False:         # if someone wins
-                    show_all(player,comp)   # show all cards of particiapnats
-                    break                   # break the loop
-                elif game_on == 1:          # if both players stand and equal values
-                    print("\t\t\t******************")
-                    print("\t\t\t*** Draw Match ***")
-                    print("\t\t\t******************")
-                    show_all(player,comp)   # show all cards of participants
-                    break                   # vreak the loop
-    count += 1              # increase count to show the card index
-
+    game_on = True                                                  # game on True
+    player.own_cards = [new_deck.deal_one(),new_deck.deal_one()]    # give two cards from deck to player
+    comp.own_cards = [new_deck.deal_one(),new_deck.deal_one()]      # give two cards from deck to computer
+    count = 0                                                       # instance value to check  
+    chk = 0                                                                   
+    while game_on:      
+        if count == 0:
+            player.display()                # show the player's cards
+        result1 = player.cards_val()        # get the value of player
+        result2 = comp.cards_cmp()          # get the value of computer
+        comp.display(True) 
         
+        if result1 < 16:                            # if player's cards are under 16
+            input("\n\t\t\t You are cards are under 16 so press enter to deal a card: ")
+            player.add_cards(new_deck.deal_one())   # remove one card from deck
+            player.display()                        # show the player's cards                     
+        else:                                       # if the player's cards are above or equal 16
+            chk = hit_or_stand(player,new_deck)     # ask player to stand or hit
+            
+        if result1 <= 21 :              # if the player's points is less than 21
+            if result2 < result1:       # and player's point is greater than computer's points
+                comp.add_cards(new_deck.deal_one()) # remove one card for computer
+                result2 = comp.cards_cmp()          # get the new total results
+        
+        game_on=check_busts(result1,result2,player.name,comp.name,amt)  # check bust function
+        if game_on == False:        # if someone loses
+            player.display()        # show the cards of player before the game ends
+            comp.display()          # show the cards of computer before the game ends
+            break 
+        if chk == 2:                # if player stands
+            game_on=check_winner(result1,result2,player.name,comp.name,amt)    # check winner        
+            if game_on == False:            # if someone wins
+                player.display()            # show the cards of player before the game ends 
+                comp.display()              # show the cards of computer before the game ends
+                break                       # break the loop
+        count += 1              # increase count to check
 
 if __name__ == '__main__':
     main()
-
-    
-
-
-
